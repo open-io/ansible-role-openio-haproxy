@@ -1,0 +1,14 @@
+/var/log/haproxy/haproxy.log {
+    daily
+    rotate 5
+    missingok
+    notifempty
+    compress
+    delaycompress
+    maxsize 20M
+    sharedscripts
+    postrotate
+        /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
+        /bin/kill -HUP `cat /var/run/rsyslogd.pid 2> /dev/null` 2> /dev/null || true
+    endscript
+}

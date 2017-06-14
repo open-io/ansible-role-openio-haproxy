@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+$ModLoad imudp
+$UDPServerRun 514 
+$template Haproxy,"%msg%\n"
+local{{ haproxy_logs_facility }}.=info -{{ haproxy_logs_directory }}/haproxy.log;Haproxy
+local{{ haproxy_logs_facility }}.notice -{{ haproxy_logs_directory }}/haproxy-status.log;Haproxy
+local{{ haproxy_logs_facility }}.err -{{ haproxy_logs_directory }}/haproxy-error.log;Haproxy
+### keep logs in localhost ##
+local{{ haproxy_logs_facility }}.* ~ 
