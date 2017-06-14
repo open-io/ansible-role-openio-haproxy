@@ -1,0 +1,66 @@
+---
+# tasks file for ansible-role-haproxy
+
+- name: 'HAproxy: Install packages'
+  package:
+    name: "{{ item }}"
+    state: installed
+  with_items: "{{ haproxy_packages }}"
+
+- name: 'HAproxy: Ensure log directory exists'
+  file:
+    path: "{{ haproxy_logs_directory }}"
+    owner: root
+    group: root
+    state: directory
+    mode: 0750
+  tags: install
+
+- name: 'HAproxy: Ensure HAproxy stats socket directory exists'
+  file:
+    path: "{{ haproxy_global_stats_socket|dirname }}"
+    owner: "{{ haproxy_global_user }}"
+    group: "{{ haproxy_global_group }}"
+    state: directory
+    mode: 0775
+  tags: install
+
+- name: 'HAproxy: Set sysctl configuration'
+  include: sysctl.yml
+  when: haproxy_sysctl_managed
+
+- name: 'HAproxy: Set rsyslog configuration'
+  template:
+    src: "{{ haproxy_rsyslog_conf_template }}"
+    dest: "{{ haproxy_rsyslog_conf_path }}"
+    owner: root
+    group: root
+    mode:  0644
+  when: haproxy_rsyslog_managed
+  notify: restart rsyslog
+
+- name: 'HAproxy: Set logrotate configuration'
+  template:
+    src: "{{ haproxy_logrotate_conf_template }}"
+    dest: "{{ haproxy_logrotate_template_conf_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: haproxy_logrotate_managed
+
+- name: 'HAproxy: Set HAproxy configuration'
+  template:
+    src: "{{ haproxy_conf_template }}"
+    dest: "{{ haproxy_conf_path }}"
+    owner: root
+    group: root
+    mode:  0644
+    validate: haproxy -f %s -c -q
+  notify: reload haproxy
+
+- name: 'HAproxy: Start service'
+  service:
+    name: "{{ haproxy_service_name }}"
+    state: started
+    enabled: true
+...
