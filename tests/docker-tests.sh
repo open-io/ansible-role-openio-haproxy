@@ -114,7 +114,7 @@ run_syntax_check() {
 
 run_playbook() {
   log "Running playbook"
-  exec_container ansible-playbook "${test_playbook}"
+  exec_container ansible-playbook "${test_playbook}" --diff
   log "Run finished"
 }
 
