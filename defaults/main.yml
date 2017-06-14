@@ -1,11 +1,6 @@
 ---
 # defaults file for ansible-role-haproxy
 
-haproxy_version: 1.5
-haproxy_packages:
-  - haproxy
-haproxy_service_name: haproxy
-
 haproxy_conf_template: haproxy.cfg.j2
 haproxy_conf_path: /etc/haproxy/haproxy.cfg
 
@@ -40,7 +35,8 @@ haproxy_global_chroot: /var/lib/haproxy
 haproxy_global_user: haproxy
 haproxy_global_group: haproxy
 
-haproxy_global_stats_socket: /run/haproxy/admin.sock
+haproxy_global_stats_socket: /run/haproxy/haproxy.sock mode 0660 level admin
+haproxy_global_stats_timeout: 30s
 
 haproxy_global_ca_base: /etc/ssl/certs
 haproxy_global_crt_base: /etc/ssl/private
@@ -79,30 +75,32 @@ haproxy_certbot_frontend: false
 
 # OpenIO Swift proxy
 haproxy_swift_frontend: false
-haproxy_swift_frontend_bind: 127.0.0.1:443
-haproxy_swift_public_frontend_bind: 0.0.0.0:443
+haproxy_swift_public_frontend_bind: 0.0.0.0:80
+#haproxy_swift_public_frontend_bind: 0.0.0.0:443 ssl crt /etc/letsencrypt/live/swift.openio.io/fullchain.pem
+haproxy_swift_private_frontend_bind: 172.17.0.2:80
 haproxy_swift_backend_url:
-  - 127.0.0.1:6007
-  - 127.0.0.2:6007
+  - 10.0.1.1:6007
+  - 10.0.1.2:6007
 
 # Openstack Keystone
 haproxy_keystone_frontend: false
-haproxy_keystone_admin_frontend_bind: 0.0.0.0:35357
+haproxy_keystone_admin_frontend_bind: 172.17.0.2:35357
+#haproxy_keystone_admin_frontend_bind: 0.0.0.0:35357 ssl crt /etc/letsencrypt/live/keystone.openio.io/fullchain.pem
 haproxy_keystone_admin_backend_url:
-  - 127.0.0.1:35357
-  - 127.0.0.2:35357
-haproxy_keystone_internal_frontend_bind: 0.0.0.0:5000
+  - 10.0.1.1:35357
+  - 10.0.1.2:35357
+haproxy_keystone_internal_frontend_bind: 172.17.0.2:5000
 haproxy_keystone_internal_backend_url:
-  - 127.0.0.1:5000
-  - 127.0.0.2:5000
+  - 10.0.1.1:5000
+  - 10.0.1.2:5000
 haproxy_keystone_public_frontend_bind: 0.0.0.0:5000
 haproxy_keystone_public_backend_url:
-  - 127.0.0.1:5000
-  - 127.0.0.2:5000
+  - 10.0.1.1:5000
+  - 10.0.1.2:5000
 
 # OpenIO Conscience
 haproxy_conscience_frontend: false
-haproxy_conscience_frontend_bind: 0.0.0.0:6000
+haproxy_conscience_frontend_bind: 172.17.0.2:6000
 haproxy_conscience_backend_url:
-  - 127.0.0.1:6000
-  - 127.0.0.2:6000
+  - 10.0.1.1:6000
+  - 10.0.1.2:6000

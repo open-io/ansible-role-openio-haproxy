@@ -2,8 +2,10 @@ global
 	log {{ haproxy_global_log_socket }} {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
 	chroot {{ haproxy_global_chroot }}
 
-	stats socket {{ haproxy_global_stats_socket }} mode 660 level admin
-	stats timeout 30s
+  {% if haproxy_stats_socket }
+	stats socket {{ haproxy_global_stats_socket }}
+	stats timeout {{ haproxy_global_stats_timeout }}
+  {% endif %}
 
   user {{ haproxy_global_user }}
 	group {{ haproxy_global_group }}
@@ -62,7 +64,7 @@ backend certbot
 # Private Access
 frontend swift-private
    bind {{ haproxy_swift_private_frontend_bind }}
-   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ h=%Th/i=%Ti/R=%TR/w=%Tw/c=%Tc/r=%Tr/d=%Td/a=%Ta/t=%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r\ %ID
+   log-format {{ haproxy_log_format_https }}
    capture request header Host len 60
    capture request header X-Unique-ID len 46
    capture request header X-Client-IP len 24
@@ -71,8 +73,8 @@ frontend swift-private
 
 # Public Access
 frontend swift-public
-   bind {{ haproxy_swift_public_frontend_bind }} ssl crt /opt/certbot/haproxy_fullchains/__fallback.pem crt /opt/certbot/haproxy_fullchains
-   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ h=%Th/i=%Ti/R=%TR/w=%Tw/c=%Tc/r=%Tr/d=%Td/a=%Ta/t=%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r\ %ID
+   bind {{ haproxy_swift_public_frontend_bind }}
+   log-format {{ haproxy_log_format_https }}
    capture request header Host len 60
    capture request header X-Unique-ID len 46
    capture request header X-Client-IP len 24
@@ -92,7 +94,7 @@ backend swift-backend
 # Admin Access
 frontend keystone-admin
    bind {{ haproxy_keystone_admin_frontend_bind }}
-   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ h=%Th/i=%Ti/R=%TR/w=%Tw/c=%Tc/r=%Tr/d=%Td/a=%Ta/t=%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r\ %ID
+   log-format {{ haproxy_log_format_https }}
    capture request header Host len 60
    capture request header X-Unique-ID len 46
    capture request header X-Client-IP len 24
@@ -108,7 +110,7 @@ backend keystone-admin-backend
 # Internal Access
 frontend keystone-private
    bind {{ haproxy_keystone_internal_frontend_bind }}
-   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ h=%Th/i=%Ti/R=%TR/w=%Tw/c=%Tc/r=%Tr/d=%Td/a=%Ta/t=%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r\ %ID
+   log-format {{ haproxy_log_format_https }}
    capture request header Host len 60
    capture request header X-Unique-ID len 46
    capture request header X-Client-IP len 24
@@ -123,8 +125,8 @@ backend keystone-internal-backend
 
 # Public Access
 frontend keystone-public
-   bind {{ haproxy_keystone_public_frontend_bind }} ssl crt /opt/certbot/haproxy_fullchains/__fallback.pem crt /opt/certbot/haproxy_fullchains
-   log-format %ci:%cp\ [%t]\ %ft\ %b/%s\ h=%Th/i=%Ti/R=%TR/w=%Tw/c=%Tc/r=%Tr/d=%Td/a=%Ta/t=%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r\ %ID
+   bind {{ haproxy_keystone_public_frontend_bind }}
+   log-format {{ haproxy_log_format_https }}
    capture request header Host len 60
    capture request header X-Unique-ID len 46
    capture request header X-Client-IP len 24
@@ -141,18 +143,16 @@ backend keystone-public-backend
 {% if haproxy_conscience_frontend %}
 
 ### Conscience
-defaults CONSCIENCE
-   mode tcp
-   log-format "%ci:%cp [%t] %ft %b/%s h=%Th/w=%Tw/c=%Tc/d=%Td/t=%Tt %B %ts %ac/%fc/%bc/%sc/%rc %sq/%bq"
-
 frontend conscience
    bind {{ haproxy_conscience_frontend_bind }} name conscience
+	 log-format {{ haproxy_log_format_http }}
    default_backend conscience-backend
 
 backend conscience-backend
    option tcp-check
    {% for backend in haproxy_conscience_backend_url %}
    server conscience{{ loop.index }} {{ backend }} check inter 5s{% if loop.index > 1 %} backup{% endif %}
+
 	 {% endfor %}
 
 {% endif %}

@@ -1,5 +1,15 @@
 ---
 # tasks file for ansible-role-haproxy
+- name: "HAproxy: Include {{ ansible_distribution }} variables"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+
+- name: "HAproxy: Include {{ haproxy_version }} version variables"
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ haproxy_version }}.yml"
 
 - name: 'HAproxy: Install packages'
   package:
@@ -55,7 +65,7 @@
     owner: root
     group: root
     mode:  0644
-    validate: haproxy -f %s -c -q
+#    validate: haproxy -f %s -c -q
   notify: reload haproxy
 
 - name: 'HAproxy: Start service'
