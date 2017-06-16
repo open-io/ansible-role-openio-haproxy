@@ -9,4 +9,5 @@
     reload: yes
   tags: install
   when: haproxy_sysctl_managed
+        and ansible_virtualization_type is not defined
 ...
