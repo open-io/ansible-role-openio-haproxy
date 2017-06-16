@@ -2,7 +2,7 @@ global
 	log {{ haproxy_global_log_socket }} {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
 	chroot {{ haproxy_global_chroot }}
 
-  {% if haproxy_stats_socket }
+  {% if haproxy_global_stats_socket %}
 	stats socket {{ haproxy_global_stats_socket }}
 	stats timeout {{ haproxy_global_stats_timeout }}
   {% endif %}
@@ -29,8 +29,8 @@ global
 
 defaults
 	log	{{ haproxy_defaults_log }}
-	unique-id-format %{+X}o\ %ci:%cp_%fi:%fp_%Ts_%rt:%pid
-	unique-id-header X-Unique-ID
+	unique-id-format {{ haproxy_defaults_unique_id_format }}
+	unique-id-header {{ haproxy_defaults_unique_id_header }}
 	mode	{{ haproxy_default_mode }}
   {% for option in haproxy_default_options %}
   option  {{ option }}
