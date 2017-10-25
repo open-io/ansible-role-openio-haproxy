@@ -1,12 +1,13 @@
 # roles/haproxy/tasks/sysctl.yml
 ---
-- name: Add net.ipv4.ip_nonlocal_bind in sysctl
+- name: Set sysctl variables
   sysctl:
-    name: net.ipv4.ip_nonlocal_bind
+    name: "{{ item.key }}"
     sysctl_file: "{{ haproxy_sysctl_template_dest }}"
-    value: 1
+    value: "{{ item.value }}"
     sysctl_set: yes
     reload: yes
+  with_dict: "{{ haproxy_sysctl_entries }}"
   tags: install
   when: haproxy_sysctl_managed
         and ansible_virtualization_type is not defined

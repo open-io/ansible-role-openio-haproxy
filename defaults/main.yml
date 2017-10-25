@@ -10,6 +10,9 @@ haproxy_logs_facility: 5
 # Sysctl configuration
 haproxy_sysctl_managed: true
 haproxy_sysctl_template_dest: /etc/sysctl.d/49-haproxy.conf
+haproxy_sysctl_entries:
+  net.ipv4.ip_forward: 1
+  net.ipv4.ip_nonlocal_bind: 1
 
 # Rsyslog configuration
 haproxy_rsyslog_managed: true
