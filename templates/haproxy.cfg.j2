@@ -1,44 +1,43 @@
 global
-	log {{ haproxy_global_log_socket }} {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
-	chroot {{ haproxy_global_chroot }}
-
-  {% if haproxy_global_stats_socket %}
-	stats socket {{ haproxy_global_stats_socket }}
-	stats timeout {{ haproxy_global_stats_timeout }}
-  {% endif %}
+  log {{ haproxy_global_log_socket }} {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
+  chroot {{ haproxy_global_chroot }}
 
   user {{ haproxy_global_user }}
-	group {{ haproxy_global_group }}
-	daemon
+  group {{ haproxy_global_group }}
+  daemon
 
-	# Default SSL material locations
-	ca-base {{ haproxy_global_ca_base }}
-	crt-base {{ haproxy_global_crt_base }}
+  {% if haproxy_global_stats_socket -%}
+  stats socket {{ haproxy_global_stats_socket }}
+  stats timeout {{ haproxy_global_stats_timeout }}
+  {% endif %}
 
-	# Default ciphers to use on SSL-enabled listening sockets.
-	# For more information, see ciphers(1SSL). This list is from:
-	#  https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
-	ssl-default-bind-ciphers {{ haproxy_global_ssl_default_bind_ciphers }}
+  # SSL
+  ca-base {{ haproxy_global_ca_base }}
+  crt-base {{ haproxy_global_crt_base }}
+  # Default ciphers to use on SSL-enabled listening sockets.
+  # For more information, see ciphers(1SSL). This list is from:
+  #  https://hynek.me/articles/hardening-your-web-servers-ssl-ciphers/
+  ssl-default-bind-ciphers {{ haproxy_global_ssl_default_bind_ciphers }}
   ssl-default-bind-options {{ haproxy_global_ssl_default_bind_options }}
-	ssl-default-server-ciphers {{ haproxy_global_ssl_default_server_ciphers }}
-	ssl-default-server-options {{ haproxy_global_ssl_default_server_options }}
-	tune.ssl.default-dh-param {{ haproxy_global_tune_ssl_default_dh_param }}
+  ssl-default-server-ciphers {{ haproxy_global_ssl_default_server_ciphers }}
+  ssl-default-server-options {{ haproxy_global_ssl_default_server_options }}
+  tune.ssl.default-dh-param {{ haproxy_global_tune_ssl_default_dh_param }}
   {% if haproxy_version > 1.6 %}
-	ssl-dh-param-file {{ haproxy_global_ssl_dh_param_file }}
-	{% endif %}
+  ssl-dh-param-file {{ haproxy_global_ssl_dh_param_file }}
+  {% endif %}
 
 defaults
-	log	{{ haproxy_defaults_log }}
-	unique-id-format {{ haproxy_defaults_unique_id_format }}
-	unique-id-header {{ haproxy_defaults_unique_id_header }}
-	mode	{{ haproxy_default_mode }}
-  {% for option in haproxy_default_options %}
+  log {{ haproxy_defaults_log }}
+  unique-id-format {{ haproxy_defaults_unique_id_format }}
+  unique-id-header {{ haproxy_defaults_unique_id_header }}
+  mode {{ haproxy_default_mode }}
+  {% for option in haproxy_default_options -%}
   option  {{ option }}
-  {% endfor %}
-  {% for timeout in haproxy_defaults_timeouts %}
-	timeout {{ timeout }}
-  {% endfor %}
-  {% for errorfile in haproxy_defaults_errorfiles %}
+  {% endfor -%}
+  {% for timeout in haproxy_defaults_timeouts -%}
+  timeout {{ timeout }}
+  {% endfor -%}
+  {% for errorfile in haproxy_defaults_errorfiles -%}
   errorfile {{ errorfile }}
   {% endfor %}
 
@@ -46,16 +45,16 @@ defaults
 
 ### Certbot
 frontend http-in-certbot
-    bind *:80
-    # Forward Certbot verification requests to the certbot-haproxy plugin
-    acl is_certbot path_beg -i /.well-known/acme-challenge
-    rspadd Strict-Transport-Security:\ max-age=31536000;\ includeSubDomains;\ preload
-    rspadd X-Frame-Options:\ DENY
-    use_backend certbot if is_certbot
+  bind *:80
+  # Forward Certbot verification requests to the certbot-haproxy plugin
+  acl is_certbot path_beg -i /.well-known/acme-challenge
+  rspadd Strict-Transport-Security:\ max-age=31536000;\ includeSubDomains;\ preload
+  rspadd X-Frame-Options:\ DENY
+  use_backend certbot if is_certbot
 backend certbot
-    log global
-    mode http
-    server certbot 127.0.0.1:8000
+  log global
+  mode http
+  server certbot 127.0.0.1:8000
 
 {% endif %}
 {% if haproxy_swift_frontend %}
@@ -63,29 +62,29 @@ backend certbot
 ### OpenIO Swift proxy
 # Private Access
 frontend swift-private
-   bind {{ haproxy_swift_private_frontend_bind }}
-   log-format {{ haproxy_log_format_https }}
-   capture request header Host len 60
-   capture request header X-Unique-ID len 46
-   capture request header X-Client-IP len 24
-   reqadd X-Forwarded-Proto:\ https
-   default_backend swift-backend
+  bind {{ haproxy_swift_private_frontend_bind }}
+  log-format {{ haproxy_log_format_https }}
+  capture request header Host len 60
+  capture request header X-Unique-ID len 46
+  capture request header X-Client-IP len 24
+  reqadd X-Forwarded-Proto:\ https
+  default_backend swift-backend
 
 # Public Access
 frontend swift-public
-   bind {{ haproxy_swift_public_frontend_bind }}
-   log-format {{ haproxy_log_format_https }}
-   capture request header Host len 60
-   capture request header X-Unique-ID len 46
-   capture request header X-Client-IP len 24
-   reqadd X-Forwarded-Proto:\ https
-   default_backend swift-backend
+  bind {{ haproxy_swift_public_frontend_bind }}
+  log-format {{ haproxy_log_format_https }}
+  capture request header Host len 60
+  capture request header X-Unique-ID len 46
+  capture request header X-Client-IP len 24
+  reqadd X-Forwarded-Proto:\ https
+  default_backend swift-backend
 
 backend swift-backend
-   balance roundrobin
-	 {% for backend in haproxy_swift_backend_url %}
-   server swift-proxy{{ loop.index }} {{ backend }} check inter 5s
-	 {% endfor %}
+  balance roundrobin
+  {% for backend in haproxy_swift_backend_url -%}
+  server swift-proxy{{ loop.index }} {{ backend }} check inter 5s
+  {% endfor %}
 
 {% endif %}
 {% if haproxy_keystone_frontend %}
@@ -93,66 +92,65 @@ backend swift-backend
 ### Openstack Keystone
 # Admin Access
 frontend keystone-admin
-   bind {{ haproxy_keystone_admin_frontend_bind }}
-   log-format {{ haproxy_log_format_https }}
-   capture request header Host len 60
-   capture request header X-Unique-ID len 46
-   capture request header X-Client-IP len 24
-   reqadd X-Forwarded-Proto:\ http
-   default_backend keystone-admin-backend
+ bind {{ haproxy_keystone_admin_frontend_bind }}
+ log-format {{ haproxy_log_format_https }}
+ capture request header Host len 60
+ capture request header X-Unique-ID len 46
+ capture request header X-Client-IP len 24
+ reqadd X-Forwarded-Proto:\ http
+ default_backend keystone-admin-backend
 
 backend keystone-admin-backend
-   balance roundrobin
-	 {% for backend in haproxy_keystone_admin_backend_url %}
-   server keystone-admin{{ loop.index }} {{ backend }} check inter 5s
-	 {% endfor %}
+  balance roundrobin
+  {% for backend in haproxy_keystone_admin_backend_url -%}
+  server keystone-admin{{ loop.index }} {{ backend }} check inter 5s
+  {% endfor %}
 
 # Internal Access
 frontend keystone-private
-   bind {{ haproxy_keystone_internal_frontend_bind }}
-   log-format {{ haproxy_log_format_https }}
-   capture request header Host len 60
-   capture request header X-Unique-ID len 46
-   capture request header X-Client-IP len 24
-   reqadd X-Forwarded-Proto:\ http
-   default_backend keystone-internal-backend
+  bind {{ haproxy_keystone_internal_frontend_bind }}
+  log-format {{ haproxy_log_format_https }}
+  capture request header Host len 60
+  capture request header X-Unique-ID len 46
+  capture request header X-Client-IP len 24
+  reqadd X-Forwarded-Proto:\ http
+  default_backend keystone-internal-backend
 
 backend keystone-internal-backend
-	 balance roundrobin
-	 {% for backend in haproxy_keystone_internal_backend_url %}
-	 server keystone-internal{{ loop.index }} {{ backend }} check inter 5s
-   {% endfor %}
+  balance roundrobin
+  {% for backend in haproxy_keystone_internal_backend_url -%}
+  server keystone-internal{{ loop.index }} {{ backend }} check inter 5s
+  {% endfor %}
 
 # Public Access
 frontend keystone-public
-   bind {{ haproxy_keystone_public_frontend_bind }}
-   log-format {{ haproxy_log_format_https }}
-   capture request header Host len 60
-   capture request header X-Unique-ID len 46
-   capture request header X-Client-IP len 24
-   reqadd X-Forwarded-Proto:\ https
-   default_backend keystone-public-backend
+  bind {{ haproxy_keystone_public_frontend_bind }}
+  log-format {{ haproxy_log_format_https }}
+  capture request header Host len 60
+  capture request header X-Unique-ID len 46
+  capture request header X-Client-IP len 24
+  reqadd X-Forwarded-Proto:\ https
+  default_backend keystone-public-backend
 
 backend keystone-public-backend
-	 balance roundrobin
-	 {% for backend in haproxy_keystone_public_backend_url %}
-	 server keystone-public{{ loop.index }} {{ backend }} check inter 5s
-	 {% endfor %}
+  balance roundrobin
+  {% for backend in haproxy_keystone_public_backend_url -%}
+  server keystone-public{{ loop.index }} {{ backend }} check inter 5s
+  {% endfor %}
 
 {% endif %}
 {% if haproxy_conscience_frontend %}
 
 ### Conscience
 frontend conscience
-   bind {{ haproxy_conscience_frontend_bind }} name conscience
-	 log-format {{ haproxy_log_format_http }}
-   default_backend conscience-backend
+  bind {{ haproxy_conscience_frontend_bind }} name conscience
+  log-format {{ haproxy_log_format_http }}
+  default_backend conscience-backend
 
 backend conscience-backend
-   option tcp-check
-   {% for backend in haproxy_conscience_backend_url %}
-   server conscience{{ loop.index }} {{ backend }} check inter 5s{% if loop.index > 1 %} backup{% endif %}
-
-	 {% endfor %}
+  option tcp-check
+  {%- for backend in haproxy_conscience_backend_url %}
+  server conscience{{ loop.index }} {{ backend }} check inter 5s{% if loop.index > 1 %} backup{% endif %}
+  {% endfor %}
 
 {% endif %}
