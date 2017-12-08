@@ -11,6 +11,7 @@ global
   stats timeout {{ haproxy_global_stats_timeout }}
   {% endif %}
 
+  {% if haproxy_global_ssl_enabled -%}
   # SSL
   ca-base {{ haproxy_global_ca_base }}
   crt-base {{ haproxy_global_crt_base }}
@@ -24,6 +25,7 @@ global
   tune.ssl.default-dh-param {{ haproxy_global_tune_ssl_default_dh_param }}
   {% if haproxy_version > 1.6 %}
   ssl-dh-param-file {{ haproxy_global_ssl_dh_param_file }}
+  {% endif %}
   {% endif %}
 
 defaults
@@ -67,7 +69,7 @@ frontend swift-private
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ https
+  reqadd X-Forwarded-Proto:\ http
   default_backend swift-backend
 
 # Public Access
@@ -77,7 +79,11 @@ frontend swift-public
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ https
+  {% if haproxy_global_ssl_enabled -%}
+  reqadd X-Forwarded-Proto:\ {{ haproxy_swift_public_frontend_proto }}
+  {% else %}
+  reqadd X-Forwarded-Proto:\ http
+  {% endif %}
   default_backend swift-backend
 
 backend swift-backend
@@ -129,7 +135,11 @@ frontend keystone-public
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ https
+  {% if haproxy_global_ssl_enabled -%}
+  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_public_frontend_proto }}
+  {% else %}
+  reqadd X-Forwarded-Proto:\ http
+  {% endif %}
   default_backend keystone-public-backend
 
 backend keystone-public-backend
