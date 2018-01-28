@@ -62,16 +62,6 @@ backend certbot
 {% if haproxy_swift_frontend %}
 
 ### OpenIO Swift proxy
-# Private Access
-frontend swift-private
-  bind {{ haproxy_swift_private_frontend_bind }}
-  log-format {{ haproxy_log_format_https }}
-  capture request header Host len 60
-  capture request header X-Unique-ID len 46
-  capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ http
-  default_backend swift-backend
-
 # Public Access
 frontend swift-public
   bind {{ haproxy_swift_public_frontend_bind }}
@@ -85,6 +75,18 @@ frontend swift-public
   reqadd X-Forwarded-Proto:\ http
   {% endif %}
   default_backend swift-backend
+
+{% if haproxy_swift_private_frontend_bind != haproxy_swift_public_frontend_bind %}
+# Private Access
+frontend swift-private
+  bind {{ haproxy_swift_private_frontend_bind }}
+  log-format {{ haproxy_log_format_https }}
+  capture request header Host len 60
+  capture request header X-Unique-ID len 46
+  capture request header X-Client-IP len 24
+  reqadd X-Forwarded-Proto:\ http
+  default_backend swift-backend
+{% endif %}
 
 backend swift-backend
   balance roundrobin
@@ -112,22 +114,6 @@ backend keystone-admin-backend
   server keystone-admin{{ loop.index }} {{ backend }} check inter 5s
   {% endfor %}
 
-# Internal Access
-frontend keystone-private
-  bind {{ haproxy_keystone_internal_frontend_bind }}
-  log-format {{ haproxy_log_format_https }}
-  capture request header Host len 60
-  capture request header X-Unique-ID len 46
-  capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ http
-  default_backend keystone-internal-backend
-
-backend keystone-internal-backend
-  balance roundrobin
-  {% for backend in haproxy_keystone_internal_backend_url -%}
-  server keystone-internal{{ loop.index }} {{ backend }} check inter 5s
-  {% endfor %}
-
 # Public Access
 frontend keystone-public
   bind {{ haproxy_keystone_public_frontend_bind }}
@@ -147,6 +133,24 @@ backend keystone-public-backend
   {% for backend in haproxy_keystone_public_backend_url -%}
   server keystone-public{{ loop.index }} {{ backend }} check inter 5s
   {% endfor %}
+
+{% if haproxy_keystone_internal_frontend_bind != haproxy_keystone_public_frontend_bind %}
+# Internal Access
+frontend keystone-private
+  bind {{ haproxy_keystone_internal_frontend_bind }}
+  log-format {{ haproxy_log_format_https }}
+  capture request header Host len 60
+  capture request header X-Unique-ID len 46
+  capture request header X-Client-IP len 24
+  reqadd X-Forwarded-Proto:\ http
+  default_backend keystone-internal-backend
+
+backend keystone-internal-backend
+  balance roundrobin
+  {% for backend in haproxy_keystone_internal_backend_url -%}
+  server keystone-internal{{ loop.index }} {{ backend }} check inter 5s
+  {% endfor %}
+{% endif %}
 
 {% endif %}
 {% if haproxy_conscience_frontend %}
