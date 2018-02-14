@@ -10,5 +10,4 @@
   with_dict: "{{ haproxy_sysctl_entries }}"
   tags: install
   when: haproxy_sysctl_managed
-        and ansible_virtualization_type is not defined
 ...
