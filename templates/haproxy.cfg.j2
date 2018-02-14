@@ -11,7 +11,6 @@ global
   stats timeout {{ haproxy_global_stats_timeout }}
   {% endif %}
 
-  {% if haproxy_global_ssl_enabled -%}
   # SSL
   ca-base {{ haproxy_global_ca_base }}
   crt-base {{ haproxy_global_crt_base }}
@@ -25,7 +24,6 @@ global
   tune.ssl.default-dh-param {{ haproxy_global_tune_ssl_default_dh_param }}
   {% if haproxy_version > 1.6 %}
   ssl-dh-param-file {{ haproxy_global_ssl_dh_param_file }}
-  {% endif %}
   {% endif %}
 
 defaults
@@ -69,11 +67,7 @@ frontend swift-public
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  {% if haproxy_global_ssl_enabled -%}
-  reqadd X-Forwarded-Proto:\ {{ haproxy_swift_public_frontend_proto }}
-  {% else %}
-  reqadd X-Forwarded-Proto:\ http
-  {% endif %}
+  reqadd X-Forwarded-Proto:\ https
   default_backend swift-backend
 
 {% if haproxy_swift_private_frontend_bind != haproxy_swift_public_frontend_bind %}
@@ -121,11 +115,7 @@ frontend keystone-public
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  {% if haproxy_global_ssl_enabled -%}
-  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_public_frontend_proto }}
-  {% else %}
-  reqadd X-Forwarded-Proto:\ http
-  {% endif %}
+  reqadd X-Forwarded-Proto:\ https
   default_backend keystone-public-backend
 
 backend keystone-public-backend
@@ -165,6 +155,7 @@ backend conscience-backend
   option tcp-check
   {%- for backend in haproxy_conscience_backend_url %}
   server conscience{{ loop.index }} {{ backend }} check inter 5s{% if loop.index > 1 %} backup{% endif %}
+
   {% endfor %}
 
 {% endif %}
