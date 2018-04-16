@@ -147,11 +147,13 @@ backend keystone-internal-backend
 
 ### Conscience
 frontend conscience
+  mode tcp
   bind {{ haproxy_conscience_frontend_bind }} name conscience
   log-format {{ haproxy_log_format_http }}
   default_backend conscience-backend
 
 backend conscience-backend
+  mode tcp
   option tcp-check
   {% for backend in haproxy_conscience_backend_url %}
   {% if loop.index == 1 %}server conscience{{ loop.index }} {{ backend }} check inter 5s
