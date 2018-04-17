@@ -155,11 +155,9 @@ frontend conscience
 backend conscience-backend
   mode tcp
   option tcp-check
-  {% for backend in haproxy_conscience_backend_url %}
-  {% if loop.index == 1 %}server conscience{{ loop.index }} {{ backend }} check inter 5s
-{% endif %}
-{% if loop.index > 1 %}server conscience{{ loop.index }} {{ backend }} check inter 5s backup
-{% endif %}
+  {% for backend in haproxy_conscience_backend_url -%}
+  server conscience{{ loop.index }} {{ backend }} check inter 5s{% if loop.index > 1 %} backup{% endif %}
+
   {% endfor %}
 
 {% endif %}
