@@ -67,7 +67,7 @@ frontend swift-public
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ https
+  reqadd X-Forwarded-Proto:\ {{ haproxy_swift_public_frontend_proto }}
   default_backend swift-backend
 
 {% if haproxy_swift_private_frontend_bind != haproxy_swift_public_frontend_bind %}
@@ -78,7 +78,7 @@ frontend swift-private
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ http
+  reqadd X-Forwarded-Proto:\ {{ haproxy_swift_private_frontend_proto }}
   default_backend swift-backend
 {% endif %}
 
@@ -94,13 +94,13 @@ backend swift-backend
 ### Openstack Keystone
 # Admin Access
 frontend keystone-admin
- bind {{ haproxy_keystone_admin_frontend_bind }}
- log-format {{ haproxy_log_format_https }}
- capture request header Host len 60
- capture request header X-Unique-ID len 46
- capture request header X-Client-IP len 24
- reqadd X-Forwarded-Proto:\ http
- default_backend keystone-admin-backend
+  bind {{ haproxy_keystone_admin_frontend_bind }}
+  log-format {{ haproxy_log_format_https }}
+  capture request header Host len 60
+  capture request header X-Unique-ID len 46
+  capture request header X-Client-IP len 24
+  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_admin_frontend_proto }}
+  default_backend keystone-admin-backend
 
 backend keystone-admin-backend
   balance roundrobin
@@ -115,7 +115,7 @@ frontend keystone-public
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ https
+  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_public_frontend_proto }}
   default_backend keystone-public-backend
 
 backend keystone-public-backend
@@ -132,7 +132,7 @@ frontend keystone-private
   capture request header Host len 60
   capture request header X-Unique-ID len 46
   capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ http
+  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_internal_frontend_proto }}
   default_backend keystone-internal-backend
 
 backend keystone-internal-backend
