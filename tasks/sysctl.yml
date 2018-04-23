@@ -5,8 +5,8 @@
     name: "{{ item.key }}"
     sysctl_file: "{{ haproxy_sysctl_template_dest }}"
     value: "{{ item.value }}"
-    sysctl_set: yes
-    reload: yes
+    sysctl_set: true
+    reload: true
   with_dict: "{{ haproxy_sysctl_entries }}"
   tags: install
   when: haproxy_sysctl_managed
