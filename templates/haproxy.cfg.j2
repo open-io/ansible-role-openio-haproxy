@@ -57,6 +57,7 @@ listen stats {{ haproxy_stats_address }}:{{ haproxy_stats_port }}
 
 ### Certbot
 frontend http-in-certbot
+  mode http
   bind *:80
   # Forward Certbot verification requests to the certbot-haproxy plugin
   acl is_certbot path_beg -i /.well-known/acme-challenge
@@ -65,7 +66,6 @@ frontend http-in-certbot
   use_backend certbot if is_certbot
 backend certbot
   log global
-  mode http
   server certbot 127.0.0.1:8000
 
 {% endif %}
@@ -74,6 +74,7 @@ backend certbot
 ### OpenIO Swift proxy
 # Public Access
 frontend swift-public
+  mode http
   bind {{ haproxy_swift_public_frontend_bind }}
   log-format {{ haproxy_log_format_https }}
   capture request header Host len 60
@@ -85,6 +86,7 @@ frontend swift-public
 {% if haproxy_swift_private_frontend_bind != haproxy_swift_public_frontend_bind %}
 # Private Access
 frontend swift-private
+  mode http
   bind {{ haproxy_swift_private_frontend_bind }}
   log-format {{ haproxy_log_format_https }}
   capture request header Host len 60
@@ -95,6 +97,7 @@ frontend swift-private
 {% endif %}
 
 backend swift-backend
+  mode http
   balance roundrobin
   {% for backend in haproxy_swift_backend_url -%}
   server swift-proxy{{ loop.index }} {{ backend }} check inter 5s
@@ -115,6 +118,7 @@ frontend keystone-admin
   default_backend keystone-admin-backend
 
 backend keystone-admin-backend
+  mode http
   balance roundrobin
   {% for backend in haproxy_keystone_admin_backend_url -%}
   server keystone-admin{{ loop.index }} {{ backend }} check inter 5s
@@ -122,6 +126,7 @@ backend keystone-admin-backend
 
 # Public Access
 frontend keystone-public
+  mode http
   bind {{ haproxy_keystone_public_frontend_bind }}
   log-format {{ haproxy_log_format_https }}
   capture request header Host len 60
@@ -131,6 +136,7 @@ frontend keystone-public
   default_backend keystone-public-backend
 
 backend keystone-public-backend
+  mode http
   balance roundrobin
   {% for backend in haproxy_keystone_public_backend_url -%}
   server keystone-public{{ loop.index }} {{ backend }} check inter 5s
@@ -139,6 +145,7 @@ backend keystone-public-backend
 {% if haproxy_keystone_internal_frontend_bind != haproxy_keystone_public_frontend_bind %}
 # Internal Access
 frontend keystone-private
+  mode http
   bind {{ haproxy_keystone_internal_frontend_bind }}
   log-format {{ haproxy_log_format_https }}
   capture request header Host len 60
@@ -148,7 +155,8 @@ frontend keystone-private
   default_backend keystone-internal-backend
 
 backend keystone-internal-backend
-  balance roundrobin
+ mode http
+ balance roundrobin
   {% for backend in haproxy_keystone_internal_backend_url -%}
   server keystone-internal{{ loop.index }} {{ backend }} check inter 5s
   {% endfor %}
