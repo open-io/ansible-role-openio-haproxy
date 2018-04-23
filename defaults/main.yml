@@ -30,7 +30,7 @@ haproxy_logrotate_retention: 5
 ##### HAproxy configuration file
 # Global
 haproxy_global_log_socket: 127.0.0.1
-haproxy_global_log_facility: local0
+haproxy_global_log_facility: local5
 haproxy_global_log_level: debug
 
 haproxy_global_chroot: /var/lib/haproxy
