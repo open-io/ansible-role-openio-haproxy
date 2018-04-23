@@ -110,6 +110,7 @@ backend swift-backend
 # Admin Access
 frontend keystone-admin
   bind {{ haproxy_keystone_admin_frontend_bind }}
+  mode http
   log-format {{ haproxy_log_format_https }}
   capture request header Host len 60
   capture request header X-Unique-ID len 46
