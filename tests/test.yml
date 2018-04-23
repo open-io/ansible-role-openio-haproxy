@@ -7,7 +7,7 @@
     VIP: 172.17.0.2
 
   roles:
-    - role: role_under_test
+    - role: haproxy
       haproxy_sysctl_managed: true
       haproxy_rsyslog_managed: false
       haproxy_certbot_frontend: false
