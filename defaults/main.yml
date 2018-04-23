@@ -76,6 +76,13 @@ haproxy_defaults_timeouts:
   - client  60s
   - server  60s
 
+# Stats
+haproxy_stats_address: 127.0.0.1
+haproxy_stats_port: 9000
+haproxy_stats_path: /stats
+haproxy_stats_login: admin
+haproxy_stats_password: HA_PASS
+
 ### Loadbalancing configurations
 # Certbot
 haproxy_certbot_frontend: false

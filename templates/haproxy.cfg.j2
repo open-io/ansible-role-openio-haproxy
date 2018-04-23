@@ -41,6 +41,18 @@ defaults
   errorfile {{ errorfile }}
   {% endfor %}
 
+listen stats {{ haproxy_stats_address }}:{{ haproxy_stats_port }}
+  mode http
+  balance
+  stats                enable
+  stats uri            {{ haproxy_stats_path }}
+  stats realm          Haproxy\ Statistics
+  stats auth           {{ haproxy_stats_login }}:{{ haproxy_stats_password }}
+  timeout client       5000
+  timeout connect      4000
+  timeout server       30000
+  stats admin if TRUE
+
 {% if haproxy_certbot_frontend %}
 
 ### Certbot
