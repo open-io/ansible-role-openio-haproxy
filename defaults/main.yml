@@ -61,6 +61,8 @@ haproxy_default_options:
   - dontlognull
   - forwardfor
   - log-separate-errors
+  - log-health-checks
+  - http-server-close
 haproxy_defaults_errorfiles:
   - 400 /usr/share/haproxy/400.http
   - 403 /usr/share/haproxy/403.http
