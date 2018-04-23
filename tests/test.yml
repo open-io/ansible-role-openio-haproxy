@@ -1,7 +1,7 @@
 ---
 - name: Install and configure HAproxy for OpenIO services
   hosts: all
-  become : true
+  become: true
   gather_facts: true
 
   roles:
@@ -11,3 +11,4 @@
     - name: "Processing playbook on following servers"
       debug:
         msg: "{{ inventory_hostname }}: Using IP address {{ ansible_default_ipv4.address }}"
+...

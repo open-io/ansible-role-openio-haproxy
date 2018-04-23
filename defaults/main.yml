@@ -118,10 +118,9 @@ haproxy_conscience_frontend_bind: 172.17.0.2:6000
 haproxy_conscience_backend_url:
   - 10.0.1.1:6000
   - 10.0.1.2:6000
-
-#Haproxy default protocole
 haproxy_swift_public_frontend_proto: http 
 haproxy_swift_private_frontend_proto: http 
 haproxy_keystone_admin_frontend_proto: http
 haproxy_keystone_public_frontend_proto: http 
 haproxy_keystone_internal_frontend_proto: http
+...

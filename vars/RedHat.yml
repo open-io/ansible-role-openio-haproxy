@@ -1,3 +1,4 @@
+---
 haproxy_version: 1.5
 
 haproxy_packages:
@@ -8,3 +9,4 @@ haproxy_service_name: haproxy
 certbot_packages:
   - certbot
   - python2-certbot
+...

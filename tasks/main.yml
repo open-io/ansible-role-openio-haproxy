@@ -45,7 +45,7 @@
     dest: "{{ haproxy_rsyslog_conf_path }}"
     owner: root
     group: root
-    mode:  0644
+    mode: 0644
   when: haproxy_rsyslog_managed
   notify: restart rsyslog
 
@@ -64,7 +64,7 @@
     dest: "{{ haproxy_conf_path }}"
     owner: root
     group: root
-    mode:  0644
+    mode: 0644
     validate: haproxy -f %s -c -q
   notify: reload haproxy
 
