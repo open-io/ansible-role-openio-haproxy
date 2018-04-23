@@ -1,5 +1,5 @@
 global
-  log {{ haproxy_global_log_socket }} {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
+  log {{ haproxy_global_log_socket }}:514 {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
   chroot {{ haproxy_global_chroot }}
 
   user {{ haproxy_global_user }}
