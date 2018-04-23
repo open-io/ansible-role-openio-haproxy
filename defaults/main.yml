@@ -57,7 +57,7 @@ haproxy_defaults_unique_id_format: '%{+X}o\ %ci:%cp_%fi:%fp_%Ts_%rt:%pid'
 haproxy_defaults_unique_id_header: 'X-Unique-ID'
 haproxy_default_mode: http
 haproxy_default_options:
-  - httplog
+  - httplog clf
   - dontlognull
   - forwardfor
   - log-separate-errors
