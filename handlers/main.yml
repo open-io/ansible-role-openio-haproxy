@@ -8,6 +8,6 @@
 
 - name: restart rsyslog
   service:
-    name: "{{ rsyslog_service_name }}"
+    name: "{{ haproxy_rsyslog_service_name }}"
     state: restarted
 

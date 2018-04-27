@@ -16,7 +16,7 @@ haproxy_sysctl_entries:
 
 # Rsyslog configuration
 haproxy_rsyslog_managed: true
-rsyslog_service_name: rsyslog
+haproxy_rsyslog_service_name: rsyslog
 haproxy_rsyslog_conf_template: rsyslog_haproxy.conf.j2
 haproxy_rsyslog_conf_path: /etc/rsyslog.d/49-haproxy.conf
 
