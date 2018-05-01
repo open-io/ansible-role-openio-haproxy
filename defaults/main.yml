@@ -38,7 +38,7 @@ haproxy_global_chroot: /var/lib/haproxy
 haproxy_global_user: haproxy
 haproxy_global_group: haproxy
 
-haproxy_global_stats_socket: /run/haproxy/haproxy.sock mode 0660 level admin
+haproxy_global_stats_socket: /run/haproxy/stats.sock mode 0660 level admin
 haproxy_global_stats_timeout: 30s
 
 haproxy_global_ca_base: /etc/ssl/certs

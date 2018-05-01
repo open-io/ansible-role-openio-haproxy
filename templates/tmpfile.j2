@@ -1,0 +1,2 @@
+# {{ ansible_managed }}
+d {{ haproxy_global_stats_socket.split(' ')[0] | dirname }} 755 {{ haproxy_global_user }} {{ haproxy_global_group }}  -
