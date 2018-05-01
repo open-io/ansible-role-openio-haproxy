@@ -28,15 +28,25 @@
 
 - name: 'HAproxy: Ensure HAproxy stats socket directory exists'
   file:
-    path: "{{ haproxy_global_stats_socket|dirname }}"
+    path: "{{ haproxy_global_stats_socket.split(' ')[0] | dirname }}"
     owner: "{{ haproxy_global_user }}"
     group: "{{ haproxy_global_group }}"
     state: directory
     mode: 0775
   tags: install
 
+- name: 'HAproxy: Ensure HAproxy stats socket directory is persistant'
+  template:
+    src: tmpfile.j2
+    dest: /etc/tmpfiles.d/haproxy.conf
+    owner: "{{ haproxy_global_user }}"
+    group: "{{ haproxy_global_group }}"
+    mode: 0644
+  tags: install
+  when: haproxy_global_stats_socket.split(' ')[0] | dirname is match("/run/.*")
+
 - name: 'HAproxy: Set sysctl configuration'
-  include: sysctl.yml
+  import_tasks: sysctl.yml
   when: haproxy_sysctl_managed
 
 - name: 'HAproxy: Set rsyslog configuration'
