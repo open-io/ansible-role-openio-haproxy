@@ -14,7 +14,7 @@
 - name: 'HAproxy: Install packages'
   package:
     name: "{{ item }}"
-    state: installed
+    state: present
   with_items: "{{ haproxy_packages }}"
 
 - name: 'HAproxy: Ensure log directory exists'
