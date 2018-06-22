@@ -3,6 +3,7 @@ haproxy_version: 1.5
 
 haproxy_packages:
   - haproxy
+  - sysvinit-tools 
 
 haproxy_service_name: haproxy
 
