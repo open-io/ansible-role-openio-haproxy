@@ -1,4 +1,7 @@
 ---
-haproxy_log_format_https: '%ci:%cp\ [%t]\ %ft\ %b/%s\ w=%Tw/c=%Tc/r=%Tr/t=%Tt\ %ST\ %B\ %CC\ %CS\ %tsc\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq\ %hr\ %hs\ %{+Q}r\ %ID'
-haproxy_log_format_http: '%ci:%cp\ [%t]\ %ft\ %b/%s\ w=%Tw/c=%Tc/t=%Tt\ %B\ %ts\ %ac/%fc/%bc/%sc/%rc\ %sq/%bq'
+# centos 7
+haproxy_log_format_https: "%ci:%cp\\ [%t]\\ %ft\\ %b/%s\\ w=%Tw/c=%Tc/r=%Tr/t=%Tt\\ %ST\\ %B\\ %CC\\ %CS\\ %tsc\\ %ac\
+  /%fc/%bc/%sc\\ /%rc\\ %sq/%bq\\ %hr\\ %hs\\ %{+Q}r\\ %ID"
+haproxy_log_format_http: "%ci:%cp\\ [%t]\\ %ft\\ %b/%s\\ w=%Tw/c=%Tc/t=%Tt\\ %B\\ %ts\\ %ac/%fc/%bc/%sc/%rc\\ %sq/%bq"
+haproxy_log_format_tcp: "%ci:%cp\\ [%t]\\ %ft\\ %b/%s\\ w=%Tw/c=%Tc/t=%Tt\\ %B\\ %ts\\ %ac/%fc/%bc/%sc/%rc\\ %sq/%bq"
 ...

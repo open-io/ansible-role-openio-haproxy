@@ -10,4 +10,5 @@
   service:
     name: "{{ haproxy_rsyslog_service_name }}"
     state: restarted
+  when: haproxy_rsyslog_managed
 ...

@@ -1,5 +1,5 @@
 ---
-haproxy_version: 1.5
+haproxy_version: 1.6
 
 haproxy_packages:
   - haproxy
@@ -8,7 +8,7 @@ haproxy_service_name: haproxy
 
 certbot_packages:
   - certbot
-  - python2-certbot
+  - python-certbot
 
-haproxy_errors_dir: /usr/share/haproxy
+haproxy_errors_dir: /etc/haproxy/errors
 ...
