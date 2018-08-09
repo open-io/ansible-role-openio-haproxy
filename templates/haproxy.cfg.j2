@@ -1,3 +1,4 @@
+#{{ ansible_managed }}
 global
   log {{ haproxy_global_log_socket }}:514 {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
   chroot {{ haproxy_global_chroot }}
@@ -21,10 +22,6 @@ global
   ssl-default-bind-options {{ haproxy_global_ssl_default_bind_options }}
   ssl-default-server-ciphers {{ haproxy_global_ssl_default_server_ciphers }}
   ssl-default-server-options {{ haproxy_global_ssl_default_server_options }}
-  tune.ssl.default-dh-param {{ haproxy_global_tune_ssl_default_dh_param }}
-  {% if haproxy_version > 1.6 %}
-  ssl-dh-param-file {{ haproxy_global_ssl_dh_param_file }}
-  {% endif %}
 
 defaults
   log {{ haproxy_defaults_log }}
@@ -41,144 +38,102 @@ defaults
   errorfile {{ errorfile }}
   {% endfor %}
 
-listen stats {{ haproxy_stats_address }}:{{ haproxy_stats_port }}
-  mode http
-  balance
-  stats                enable
-  stats uri            {{ haproxy_stats_path }}
-  stats realm          Haproxy\ Statistics
-  stats auth           {{ haproxy_stats_login }}:{{ haproxy_stats_password }}
-  timeout client       5000
-  timeout connect      4000
-  timeout server       30000
-  stats admin if TRUE
+###########################
+# Listen Definition
+###########################
+{% for listen in haproxy_listen_instances %}
+{% if listen is defined %}
+listen {{ listen.name }}
+{%   for key, value in listen.items() if key != "name" %}
+{%     if listen[key] == [] %}
+  {{ key }}
+{%     elif listen[key] is string %}
+  {{ key }} {{ value }}
+{%     elif listen[key] is iterable and listen[key] is not mapping %}
+{%       for i in listen[key] %}
+  {{ key }} {{ i }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+# end listen {{ listen.name }}
+{% endif %}
 
+{% endfor %}
+###########################
+# Frontend Definition
+###########################
 {% if haproxy_certbot_frontend %}
-
-### Certbot
-frontend http-in-certbot
-  mode http
-  bind *:80
-  # Forward Certbot verification requests to the certbot-haproxy plugin
-  acl is_certbot path_beg -i /.well-known/acme-challenge
-  rspadd Strict-Transport-Security:\ max-age=31536000;\ includeSubDomains;\ preload
-  rspadd X-Frame-Options:\ DENY
-  use_backend certbot if is_certbot
-backend certbot
-  log global
-  server certbot 127.0.0.1:8000
-
+{% if haproxy_frontend_certbot.name is defined %}
+frontend {{ haproxy_frontend_certbot.name }}
+{%   for key, value in haproxy_frontend_certbot.items() if key != "name" %}
+{%     if haproxy_frontend_certbot[key] == [] %}
+  {{ key }}
+{%     elif haproxy_frontend_certbot[key] is string %}
+  {{ key }} {{ value }}
+{%     elif haproxy_frontend_certbot[key] is iterable and haproxy_frontend_certbot[key] is not mapping %}
+{%       for i in haproxy_frontend_certbot[key] %}
+  {{ key }} {{ i }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+# end frontend {{ haproxy_frontend_certbot.name }}
 {% endif %}
-{% if haproxy_swift_frontend %}
-
-### OpenIO Swift proxy
-# Public Access
-frontend swift-public
-  mode http
-  bind {{ haproxy_swift_public_frontend_bind }}
-  log-format {{ haproxy_log_format_https }}
-  capture request header Host len 60
-  capture request header X-Unique-ID len 46
-  capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ {{ haproxy_swift_public_frontend_proto }}
-  default_backend swift-backend
-
-{% if haproxy_swift_private_frontend_bind != haproxy_swift_public_frontend_bind %}
-# Private Access
-frontend swift-private
-  mode http
-  bind {{ haproxy_swift_private_frontend_bind }}
-  log-format {{ haproxy_log_format_https }}
-  capture request header Host len 60
-  capture request header X-Unique-ID len 46
-  capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ {{ haproxy_swift_private_frontend_proto }}
-  default_backend swift-backend
 {% endif %}
 
-backend swift-backend
-  mode http
-  balance roundrobin
-  {% for backend in haproxy_swift_backend_url -%}
-  server swift-proxy{{ loop.index }} {{ backend }} check inter 5s
-  {% endfor %}
-
-{% endif %}
-{% if haproxy_keystone_frontend %}
-
-### Openstack Keystone
-# Admin Access
-frontend keystone-admin
-  bind {{ haproxy_keystone_admin_frontend_bind }}
-  mode http
-  log-format {{ haproxy_log_format_https }}
-  capture request header Host len 60
-  capture request header X-Unique-ID len 46
-  capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_admin_frontend_proto }}
-  default_backend keystone-admin-backend
-
-backend keystone-admin-backend
-  mode http
-  balance roundrobin
-  {% for backend in haproxy_keystone_admin_backend_url -%}
-  server keystone-admin{{ loop.index }} {{ backend }} check inter 5s
-  {% endfor %}
-
-# Public Access
-frontend keystone-public
-  mode http
-  bind {{ haproxy_keystone_public_frontend_bind }}
-  log-format {{ haproxy_log_format_https }}
-  capture request header Host len 60
-  capture request header X-Unique-ID len 46
-  capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_public_frontend_proto }}
-  default_backend keystone-public-backend
-
-backend keystone-public-backend
-  mode http
-  balance roundrobin
-  {% for backend in haproxy_keystone_public_backend_url -%}
-  server keystone-public{{ loop.index }} {{ backend }} check inter 5s
-  {% endfor %}
-
-{% if haproxy_keystone_internal_frontend_bind != haproxy_keystone_public_frontend_bind %}
-# Internal Access
-frontend keystone-private
-  mode http
-  bind {{ haproxy_keystone_internal_frontend_bind }}
-  log-format {{ haproxy_log_format_https }}
-  capture request header Host len 60
-  capture request header X-Unique-ID len 46
-  capture request header X-Client-IP len 24
-  reqadd X-Forwarded-Proto:\ {{ haproxy_keystone_internal_frontend_proto }}
-  default_backend keystone-internal-backend
-
-backend keystone-internal-backend
- mode http
- balance roundrobin
-  {% for backend in haproxy_keystone_internal_backend_url -%}
-  server keystone-internal{{ loop.index }} {{ backend }} check inter 5s
-  {% endfor %}
+{% for frontend in haproxy_frontend_instances %}
+{% if frontend.name is defined %}
+frontend {{ frontend.name }}
+{%   for key, value in frontend.items() if key != "name" %}
+{%     if frontend[key] == [] %}
+  {{ key }}
+{%     elif frontend[key] is string %}
+  {{ key }} {{ value }}
+{%     elif frontend[key] is iterable and frontend[key] is not mapping %}
+{%       for i in frontend[key] %}
+  {{ key }} {{ i }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+# end frontend {{ frontend.name }}
 {% endif %}
 
+{% endfor %}
+###########################
+# Backend Definition
+###########################
+{% if haproxy_certbot_frontend %}
+{% if haproxy_certbot_backend.name is defined %}
+backend {{ haproxy_certbot_backend.name }}
+{%   for key, value in haproxy_certbot_backend.items() if key != "name" %}
+{%     if haproxy_certbot_backend[key] == [] %}
+  {{ key }}
+{%     elif haproxy_certbot_backend[key] is string %}
+  {{ key }} {{ value }}
+{%     elif haproxy_certbot_backend[key] is iterable and haproxy_certbot_backend[key] is not mapping %}
+{%       for i in haproxy_certbot_backend[key] %}
+  {{ key }} {{ i }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+# end backend {{ haproxy_certbot_backend.name }}
 {% endif %}
-{% if haproxy_conscience_frontend %}
-
-### Conscience
-frontend conscience
-  mode tcp
-  bind {{ haproxy_conscience_frontend_bind }} name conscience
-  log-format {{ haproxy_log_format_http }}
-  default_backend conscience-backend
-
-backend conscience-backend
-  mode tcp
-  option tcp-check
-  {% for backend in haproxy_conscience_backend_url -%}
-  server conscience{{ loop.index }} {{ backend }} check inter 5s{% if loop.index > 1 %} backup{% endif %}
-
-  {% endfor %}
-
 {% endif %}
+
+{% for backend in haproxy_backend_instances %}
+{% if backend.name is defined %}
+backend {{ backend.name }}
+{%   for key, value in backend.items() if key != "name" %}
+{%     if backend[key] == [] %}
+  {{ key }}
+{%     elif backend[key] is string %}
+  {{ key }} {{ value }}
+{%     elif backend[key] is iterable and backend[key] is not mapping %}
+{%       for i in backend[key] %}
+  {{ key }} {{ i }}
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
+# end backend {{ backend.name }}
+{% endif %}
+
+{% endfor %}

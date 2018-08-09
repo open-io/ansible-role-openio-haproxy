@@ -1,5 +1,5 @@
 ---
-# defaults file for ansible-role-haproxy
+# defaults file for ansible-role-openio-haproxy
 
 haproxy_conf_template: haproxy.cfg.j2
 haproxy_conf_path: /etc/haproxy/haproxy.cfg
@@ -31,7 +31,7 @@ haproxy_logrotate_retention: 5
 # Global
 haproxy_global_log_socket: 127.0.0.1
 haproxy_global_log_facility: local5
-haproxy_global_log_level: debug
+haproxy_global_log_level: info
 
 haproxy_global_chroot: /var/lib/haproxy
 
@@ -44,38 +44,164 @@ haproxy_global_stats_timeout: 30s
 haproxy_global_ca_base: /etc/ssl/certs
 haproxy_global_crt_base: /etc/ssl/private
 
-haproxy_global_ssl_default_bind_ciphers: ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS
-haproxy_global_ssl_default_bind_options: no-sslv3 no-tlsv10 no-tls-tickets
-haproxy_global_ssl_default_server_ciphers: ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS
-haproxy_global_ssl_default_server_options: no-sslv3 no-tlsv10 no-tls-tickets
-haproxy_global_tune_ssl_default_dh_param: 2048
-haproxy_global_ssl_dh_param_file: /etc/certbot/dhparams.pem
+haproxy_global_ssl_default_bind_ciphers:
+  "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
+  ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:\
+  ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"
+haproxy_global_ssl_default_bind_options: "no-sslv3 no-tlsv10 no-tlsv11 no-tls-tickets"
+haproxy_global_ssl_default_server_ciphers:
+  "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:\
+  ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:\
+  ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"
+haproxy_global_ssl_default_server_options: no-sslv3 no-tlsv10 no-tlsv11 no-tls-tickets
+
 
 # Defaults
 haproxy_defaults_log: global
-haproxy_defaults_unique_id_format: '%{+X}o\ %ci:%cp_%fi:%fp_%Ts_%rt:%pid'
-haproxy_defaults_unique_id_header: 'X-Unique-ID'
+haproxy_defaults_unique_id_format: "%{+X}o\\ %ci:%cp_%fi:%fp_%Ts_%rt:%pid"
+haproxy_defaults_unique_id_header: "X-Unique-ID"
 haproxy_default_mode: http
+haproxy_virtual_address: 172.17.0.100
+
 haproxy_default_options:
   - httplog clf
   - dontlognull
-  - forwardfor
+  # - forwardfor
   - log-separate-errors
   - log-health-checks
   - http-server-close
+
 haproxy_defaults_errorfiles:
-  - 400 /usr/share/haproxy/400.http
-  - 403 /usr/share/haproxy/403.http
-  - 408 /usr/share/haproxy/408.http
-  - 500 /usr/share/haproxy/500.http
-  - 502 /usr/share/haproxy/502.http
-  - 503 /usr/share/haproxy/503.http
-  - 504 /usr/share/haproxy/504.http
+  - "400 {{ haproxy_errors_dir }}/400.http"
+  - "403 {{ haproxy_errors_dir }}/403.http"
+  - "408 {{ haproxy_errors_dir }}/408.http"
+  - "500 {{ haproxy_errors_dir }}/500.http"
+  - "502 {{ haproxy_errors_dir }}/502.http"
+  - "503 {{ haproxy_errors_dir }}/503.http"
+  - "504 {{ haproxy_errors_dir }}/504.http"
+
 haproxy_defaults_timeouts:
   - connect 5s
   - client  60s
   - server  60s
+  - http-request 15s
+  - queue 1m
+  - http-keep-alive 10s
+  - check 10s
+  - tunnel 1h
 
+haproxy_listen_instances:
+  - name: "stats"
+    bind: "{{ haproxy_stats_address }}:{{ haproxy_stats_port }}"
+    mode: http
+    balance: []
+    stats:
+      - enable
+      - "uri {{ haproxy_stats_path }}"
+      - "realm Haproxy\\ Statistics"
+      - "auth {{ haproxy_stats_login }}:{{ haproxy_stats_password }}"
+      - "admin if TRUE"
+    timeout:
+      - "client 5000"
+      - "connect 4000"
+      - "server 30000"
+
+haproxy_frontend_certbot:
+  # CERTBOT
+  name: "http-in-certbot"
+  mode: http
+  bind: "*:80"
+  option:
+    - "forwardfor header X-Originating-IP if-none"
+  acl:
+    - "is_certbot path_beg -i /.well-known/acme-challenge"
+  rspadd:
+    - "\"Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\""
+    - "\"X-Frame-Options: DENY\""
+  use_backend:
+    - "certbot if is_certbot"
+
+haproxy_frontend_instances:
+  # SWIFT PUBLIC
+  - name: "swift-public"
+    mode: http
+    bind: "{{ haproxy_swift_public_frontend_bind }}"
+    log-format: "{{ haproxy_log_format_https }}"
+    option:
+      - "forwardfor"
+    capture:
+      - "request header Host len 60"
+      - "request header X-Unique-ID len 46"
+      - "request header X-Client-IP len 24"
+    reqadd:
+      - "X-Forwarded-Proto:\\ {{ haproxy_swift_public_frontend_proto }}"
+    default_backend: "swift-backend"
+  # KEYSTONE ADMIN
+  - name: "keystone-admin"
+    mode: http
+    bind: "{{ haproxy_keystone_admin_frontend_bind }}"
+    log-format: "{{ haproxy_log_format_https }}"
+    option:
+      - "forwardfor"
+    capture:
+      - "request header Host len 60"
+      - "request header X-Unique-ID len 46"
+      - "request header X-Client-IP len 24"
+    reqadd:
+      - "X-Forwarded-Proto:\\ {{ haproxy_keystone_admin_frontend_proto }}"
+    default_backend: "keystone-admin-backend"
+  # KEYSTONE PUBLIC
+  - name: "keystone-public"
+    mode: http
+    bind: "{{ haproxy_keystone_public_frontend_bind }}"
+    log-format: "{{ haproxy_log_format_https }}"
+    option:
+      - "forwardfor"
+    capture:
+      - "request header Host len 60"
+      - "request header X-Unique-ID len 46"
+      - "request header X-Client-IP len 24"
+    reqadd:
+      - "X-Forwarded-Proto:\\ {{ haproxy_keystone_public_frontend_proto }}"
+    default_backend: "keystone-public-backend"
+  # CONSCIENCE
+  - name: "conscience"
+    mode: tcp
+    bind: "{{ haproxy_conscience_frontend_bind }} name conscience"
+    log-format: "{{ haproxy_log_format_tcp }}"
+    default_backend: "conscience-backend"
+
+haproxy_certbot_backend:
+  # CERTBOT
+  name: certbot
+  mode: http
+  server:
+    - "certbot 127.0.0.1:8000"
+
+haproxy_backend_instances:
+  # SWIFT PUBLIC
+  - name: swift-backend
+    mode: http
+    balance: roundrobin
+    server: "{{ haproxy_swift_backend_url | list_backends(name='swift-proxy', check='5s') }}"
+  # KEYSTONE ADMIN
+  - name: keystone-admin-backend
+    mode: http
+    balance: roundrobin
+    server: "{{ haproxy_keystone_admin_backend_url | list_backends(name='keystone-admin', check='5s') }}"
+  # KEYSTONE PUBLIC
+  - name: keystone-public-backend
+    mode: http
+    balance: roundrobin
+    server: "{{ haproxy_keystone_public_backend_url | list_backends(name='keystone-public', check='5s') }}"
+  # CONSCIENCE
+  - name: conscience-backend
+    mode: tcp
+    option:
+      - "tcp-check"
+    server: "{{ haproxy_conscience_backend_url | list_backends(name='conscience', active=1, check='5s') }}"
+
+### backward compat
 # Stats
 haproxy_stats_address: 127.0.0.1
 haproxy_stats_port: 9000
@@ -84,43 +210,36 @@ haproxy_stats_login: admin
 haproxy_stats_password: HA_PASS
 
 ### Loadbalancing configurations
-# Certbot
+# CERTBOT
 haproxy_certbot_frontend: false
-
 # OpenIO Swift proxy
-haproxy_swift_frontend: false
-haproxy_swift_public_frontend_bind: 0.0.0.0:80
+#haproxy_swift_frontend: false
+haproxy_swift_public_frontend_bind: "{{ haproxy_virtual_address }}:6007"
 #haproxy_swift_public_frontend_bind: 0.0.0.0:443 ssl crt /etc/letsencrypt/live/swift.openio.io/fullchain.pem
-haproxy_swift_private_frontend_bind: 172.17.0.2:80
+haproxy_swift_private_frontend_bind: "{{ haproxy_virtual_address }}:6007"
 haproxy_swift_backend_url:
   - 10.0.1.1:6007
   - 10.0.1.2:6007
-
 # Openstack Keystone
-haproxy_keystone_frontend: false
-haproxy_keystone_admin_frontend_bind: 172.17.0.2:35357
+#haproxy_keystone_frontend: false
+haproxy_keystone_admin_frontend_bind: "{{ haproxy_virtual_address }}:35357"
 #haproxy_keystone_admin_frontend_bind: 0.0.0.0:35357 ssl crt /etc/letsencrypt/live/keystone.openio.io/fullchain.pem
 haproxy_keystone_admin_backend_url:
   - 10.0.1.1:35357
   - 10.0.1.2:35357
-haproxy_keystone_internal_frontend_bind: 172.17.0.2:5000
-haproxy_keystone_internal_backend_url:
-  - 10.0.1.1:5000
-  - 10.0.1.2:5000
-haproxy_keystone_public_frontend_bind: 0.0.0.0:5000
+haproxy_keystone_public_frontend_bind: "{{ haproxy_virtual_address }}:5000"
 haproxy_keystone_public_backend_url:
   - 10.0.1.1:5000
   - 10.0.1.2:5000
 
 # OpenIO Conscience
-haproxy_conscience_frontend: false
-haproxy_conscience_frontend_bind: 172.17.0.2:6000
+#haproxy_conscience_frontend: false
+haproxy_conscience_frontend_bind: "{{ haproxy_virtual_address }}:6000"
 haproxy_conscience_backend_url:
   - 10.0.1.1:6000
   - 10.0.1.2:6000
-haproxy_swift_public_frontend_proto: http 
-haproxy_swift_private_frontend_proto: http 
+haproxy_swift_public_frontend_proto: http
+haproxy_swift_private_frontend_proto: http
 haproxy_keystone_admin_frontend_proto: http
-haproxy_keystone_public_frontend_proto: http 
-haproxy_keystone_internal_frontend_proto: http
+haproxy_keystone_public_frontend_proto: http
 ...

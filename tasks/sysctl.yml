@@ -9,5 +9,7 @@
     reload: true
   with_dict: "{{ haproxy_sysctl_entries }}"
   tags: install
-  when: haproxy_sysctl_managed
+  when:
+    #- ansible_virtualization_type != 'docker'
+    - haproxy_sysctl_managed
 ...
