@@ -1,6 +1,6 @@
 /var/log/haproxy/haproxy*.log {
     daily
-    rotate 5
+    rotate {{ haproxy_logrotate_retention }}
     missingok
     notifempty
     compress
