@@ -1,0 +1,8 @@
+# Test playbook
+---
+- hosts: all
+  become: true
+  roles:
+    - role: role_under_test
+      haproxy_virtual_address: "{{ ansible_default_ipv4.address }}"
+...
