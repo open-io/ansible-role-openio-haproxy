@@ -5,6 +5,7 @@
   service:
     name: "{{ haproxy_service_name }}"
     state: reloaded
+  when: not haproxy_provision_only
 
 - name: restart rsyslog
   service:

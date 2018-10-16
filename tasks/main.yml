@@ -88,4 +88,5 @@
     name: "{{ haproxy_service_name }}"
     state: started
     enabled: true
+  when: not haproxy_provision_only
 ...
