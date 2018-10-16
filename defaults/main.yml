@@ -26,6 +26,9 @@ haproxy_logrotate_conf_template: logrotate_haproxy.conf.j2
 haproxy_logrotate_template_conf_path: /etc/logrotate.d/haproxy
 haproxy_logrotate_retention: 5
 
+# provision only to prevent restart/reload of the service
+haproxy_provision_only: false
+
 
 ##### HAproxy configuration file
 # Global

@@ -78,6 +78,7 @@ An Ansible role for configure HAproxy for openio SDS. Specifically, the responsi
 | `haproxy_sysctl_managed` | `true` | [LEGACY] sysctl file creation  |
 | `haproxy_sysctl_template_dest` | `/etc/sysctl.d/49-haproxy.conf` | [LEGACY] sysctl file |
 | `haproxy_virtual_address` | `172.17.0.100` | Virtual IP address |
+| `haproxy_provision_only` | `false` | Provision only without restarting or reloading services |
 
 
 
