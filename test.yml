@@ -5,4 +5,5 @@
   roles:
     - role: role_under_test
       haproxy_virtual_address: "{{ ansible_default_ipv4.address }}"
+      haproxy_sysctl_managed: false
 ...
