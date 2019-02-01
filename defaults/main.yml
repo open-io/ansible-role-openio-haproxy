@@ -130,6 +130,8 @@ haproxy_frontend_instances:
     mode: http
     bind: "{{ haproxy_swift_public_frontend_bind }}"
     log-format: "{{ haproxy_log_format_https }}"
+    unique-id-format: "{{ haproxy_defaults_unique_id_format }}"
+    unique-id-header: "{{ haproxy_defaults_unique_id_header }}"
     option:
       - "forwardfor"
     capture:
@@ -144,6 +146,8 @@ haproxy_frontend_instances:
     mode: http
     bind: "{{ haproxy_keystone_admin_frontend_bind }}"
     log-format: "{{ haproxy_log_format_https }}"
+    unique-id-format: "{{ haproxy_defaults_unique_id_format }}"
+    unique-id-header: "{{ haproxy_defaults_unique_id_header }}"
     option:
       - "forwardfor"
     capture:
@@ -157,6 +161,8 @@ haproxy_frontend_instances:
   - name: "keystone-public"
     mode: http
     bind: "{{ haproxy_keystone_public_frontend_bind }}"
+    unique-id-format: "{{ haproxy_defaults_unique_id_format }}"
+    unique-id-header: "{{ haproxy_defaults_unique_id_header }}"
     log-format: "{{ haproxy_log_format_https }}"
     option:
       - "forwardfor"
