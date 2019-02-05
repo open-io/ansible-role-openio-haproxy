@@ -132,14 +132,24 @@ haproxy_frontend_instances:
     log-format: "{{ haproxy_log_format_https }}"
     unique-id-format: "{{ haproxy_defaults_unique_id_format }}"
     unique-id-header: "{{ haproxy_defaults_unique_id_header }}"
+    ? "acl METH_PUT method PUT \n
+      # Fix Eventlet 'Expect' header handling with uppercase '100-Continue' \n
+      # https://github.com/eventlet/eventlet/pull/523 \n
+      acl header_expect_exists req.hdr(Expect) -m found \n
+      http-request replace-header Expect ^(.*)-Continue$ \\1-continue if METH_PUT header_expect_exists \n
+      # Set 'Content-Length' header to 0 in PUT requests when not present \n
+      acl header_content_length_exists    req.hdr(Content-Length) -m found \n
+      acl header_transfer_encoding_exists req.hdr(Transfer-Encoding) -m found \n
+      http-request set-header Content-Length 0 if METH_PUT
+        !header_content_length_exists !header_transfer_encoding_exists \n
+      reqadd X-Forwarded-Proto:\\"
+    : "{{ haproxy_swift_public_frontend_proto }}"
     option:
       - "forwardfor"
     capture:
       - "request header Host len 60"
       - "request header X-Unique-ID len 46"
       - "request header X-Client-IP len 24"
-    reqadd:
-      - "X-Forwarded-Proto:\\ {{ haproxy_swift_public_frontend_proto }}"
     default_backend: "swift-backend"
   # KEYSTONE ADMIN
   - name: "keystone-admin"
