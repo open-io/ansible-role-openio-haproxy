@@ -89,4 +89,9 @@
     state: started
     enabled: true
   when: not haproxy_provision_only
+
+- name: 'HAproxy: Check service status'
+  command: "systemctl status {{ haproxy_service_name }}"
+  changed_when: false
+  when: not haproxy_provision_only
 ...
