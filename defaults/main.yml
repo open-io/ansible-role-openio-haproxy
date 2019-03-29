@@ -64,7 +64,7 @@ haproxy_defaults_log: global
 haproxy_defaults_unique_id_format: "%{+X}o\\ %ci:%cp_%fi:%fp_%Ts_%rt:%pid"
 haproxy_defaults_unique_id_header: "X-Unique-ID"
 haproxy_default_mode: http
-haproxy_virtual_address: 172.17.0.100
+haproxy_virtual_address: "{{ openio_bind_virtual_address | d('172.17.0.100') }}"
 
 haproxy_default_options:
   - httplog clf
@@ -226,7 +226,7 @@ haproxy_stats_address: 127.0.0.1
 haproxy_stats_port: 9000
 haproxy_stats_path: /stats
 haproxy_stats_login: admin
-haproxy_stats_password: HA_PASS
+haproxy_stats_password: "{{ openio_haproxy_password | d('HA_PASS') }}"
 
 ### Loadbalancing configurations
 # CERTBOT
@@ -236,27 +236,42 @@ haproxy_certbot_frontend: false
 haproxy_swift_public_frontend_bind: "{{ haproxy_virtual_address }}:6007"
 #haproxy_swift_public_frontend_bind: 0.0.0.0:443 ssl crt /etc/letsencrypt/live/swift.openio.io/fullchain.pem
 haproxy_swift_private_frontend_bind: "{{ haproxy_virtual_address }}:6007"
-haproxy_swift_backend_url:
-  - 10.0.1.1:6007
-  - 10.0.1.2:6007
+haproxy_swift_inventory_groupname: oioswift
+haproxy_swift_backend_url: "{{ (groups[haproxy_swift_inventory_groupname] \
+  | map('extract', hostvars, ['openio_bind_address'])\
+  | map('regex_replace', '$', ':6007') \
+  | list) if haproxy_swift_inventory_groupname in groups \
+  else \
+  ansible_default_ipv4.address ~ ':6007' }}"
 # Openstack Keystone
 #haproxy_keystone_frontend: false
 haproxy_keystone_admin_frontend_bind: "{{ haproxy_virtual_address }}:35357"
 #haproxy_keystone_admin_frontend_bind: 0.0.0.0:35357 ssl crt /etc/letsencrypt/live/keystone.openio.io/fullchain.pem
-haproxy_keystone_admin_backend_url:
-  - 10.0.1.1:35357
-  - 10.0.1.2:35357
+haproxy_keystone_inventory_groupname: keystone
+haproxy_keystone_admin_backend_url: "{{ (groups[haproxy_keystone_inventory_groupname] \
+  | map('extract', hostvars, ['openio_bind_address'])\
+  | map('regex_replace', '$', ':35357') \
+  | list) if haproxy_swift_inventory_groupname in groups \
+  else \
+  ansible_default_ipv4.address ~ ':35357' }}"
 haproxy_keystone_public_frontend_bind: "{{ haproxy_virtual_address }}:5000"
-haproxy_keystone_public_backend_url:
-  - 10.0.1.1:5000
-  - 10.0.1.2:5000
+haproxy_keystone_public_backend_url: "{{ (groups[haproxy_keystone_inventory_groupname] \
+  | map('extract', hostvars, ['openio_bind_address'])\
+  | map('regex_replace', '$', ':5000') \
+  | list) if haproxy_swift_inventory_groupname in groups \
+  else \
+  ansible_default_ipv4.address ~ ':5000' }}"
 
 # OpenIO Conscience
 #haproxy_conscience_frontend: false
+haproxy_conscience_inventory_groupname: conscience
 haproxy_conscience_frontend_bind: "{{ haproxy_virtual_address }}:6000"
-haproxy_conscience_backend_url:
-  - 10.0.1.1:6000
-  - 10.0.1.2:6000
+haproxy_conscience_backend_url: "{{ (groups[haproxy_conscience_inventory_groupname] \
+  | map('extract', hostvars, ['openio_bind_address'])\
+  | map('regex_replace', '$', ':6000') \
+  | list) if haproxy_swift_inventory_groupname in groups \
+  else \
+  ansible_default_ipv4.address ~ ':6000' }}"
 haproxy_swift_public_frontend_proto: http
 haproxy_swift_private_frontend_proto: http
 haproxy_keystone_admin_frontend_proto: http

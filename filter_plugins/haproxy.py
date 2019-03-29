@@ -7,6 +7,9 @@ class FilterModule(object):
     def list_backends(self, list_backends, name, active=0, check="0"):
         backends = list()
 
+        if isinstance(list_backends, basestring):
+            list_backends = list_backends.split()
+
         for index, backend in enumerate(list_backends):
             res = name + str(index + 1) + " " + backend
             if check != "0":
