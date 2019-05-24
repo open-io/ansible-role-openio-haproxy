@@ -86,7 +86,7 @@ haproxy_defaults_errorfiles:
 haproxy_defaults_timeouts:
   - connect 5s
   - client  60s
-  - server  60s
+  - server  600s
   - http-request 15s
   - queue 1m
   - http-keep-alive 10s
