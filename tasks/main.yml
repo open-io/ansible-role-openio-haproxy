@@ -6,11 +6,17 @@
     - "{{ ansible_distribution_release }}.yml"
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
+  tags:
+    - install
+    - configure
 
 - name: "HAproxy: Include {{ haproxy_version }} version variables"
   include_vars: "{{ item }}"
   with_first_found:
     - "{{ haproxy_version }}.yml"
+  tags:
+    - install
+    - configure
 
 - name: 'HAproxy: Install packages'
   package:
@@ -21,6 +27,7 @@
   until: install_packages is success
   retries: 5
   delay: 2
+  tags: install
 
 - name: 'HAproxy: Ensure log directory exists'
   file:
@@ -29,7 +36,7 @@
     group: root
     state: directory
     mode: 0750
-  tags: install
+  tags: configure
 
 - name: 'HAproxy: Ensure HAproxy stats socket directory exists'
   file:
@@ -38,7 +45,7 @@
     group: "{{ haproxy_global_group }}"
     state: directory
     mode: 0775
-  tags: install
+  tags: configure
 
 - name: 'HAproxy: Ensure HAproxy stats socket directory is persistant'
   template:
@@ -47,12 +54,13 @@
     owner: "{{ haproxy_global_user }}"
     group: "{{ haproxy_global_group }}"
     mode: 0644
-  tags: install
+  tags: configure
   when: haproxy_global_stats_socket.split(' ')[0] | dirname is match("/run/.*")
 
 - name: 'HAproxy: Set sysctl configuration'
   import_tasks: sysctl.yml
   when: haproxy_sysctl_managed
+  tags: configure
 
 - name: 'HAproxy: Set rsyslog configuration'
   template:
@@ -63,6 +71,7 @@
     mode: 0644
   when: haproxy_rsyslog_managed
   notify: restart rsyslog
+  tags: configure
 
 - name: 'HAproxy: Set logrotate configuration'
   template:
@@ -72,6 +81,7 @@
     group: root
     mode: '0644'
   when: haproxy_logrotate_managed
+  tags: configure
 
 - name: 'HAproxy: Set HAproxy configuration'
   template:
@@ -82,6 +92,7 @@
     mode: 0644
     validate: haproxy -f %s -c -q
   notify: reload haproxy
+  tags: configure
 
 - name: 'HAproxy: Start service'
   service:
@@ -89,4 +100,5 @@
     state: started
     enabled: true
   when: not haproxy_provision_only
+  tags: configure
 ...
