@@ -91,14 +91,15 @@
     group: root
     mode: 0644
     validate: haproxy -f %s -c -q
-  notify: reload haproxy
+  register: set_haproxy_config
   tags: configure
 
 - name: 'HAproxy: Start service'
   service:
     name: "{{ haproxy_service_name }}"
-    state: started
+    state: "{{ verb }}"
     enabled: true
-  when: not haproxy_provision_only
   tags: configure
+  vars:
+    verb: "{{ 'restarted' if not haproxy_provision_only and set_haproxy_config is changed else 'started' }}"
 ...
