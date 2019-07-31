@@ -1,12 +1,5 @@
 ---
 # handlers file for ansible-role-haproxy
-
-- name: reload haproxy
-  service:
-    name: "{{ haproxy_service_name }}"
-    state: reloaded
-  when: not haproxy_provision_only
-
 - name: restart rsyslog
   service:
     name: "{{ haproxy_rsyslog_service_name }}"
