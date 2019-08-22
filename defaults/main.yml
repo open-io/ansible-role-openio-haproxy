@@ -208,11 +208,19 @@ haproxy_backend_instances:
     mode: http
     balance: roundrobin
     server: "{{ haproxy_keystone_admin_backend_url | list_backends(name='keystone-admin', check='5s') }}"
+    option: 'httpchk POST /v3/auth/tokens HTTP/1.1\r\nContent-Type:\ application/json\r\nContent-Length:\ 140\
+\r\n\r\n{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"name\":\"h34lthch3ck\",\
+\"domain\":{\"id\":\"default\"},\"password\":\"h34lthch3ck\"}}}}}'
+    http-check: "expect status 401"
   # KEYSTONE PUBLIC
   - name: keystone-public-backend
     mode: http
     balance: roundrobin
     server: "{{ haproxy_keystone_public_backend_url | list_backends(name='keystone-public', check='5s') }}"
+    option: 'httpchk POST /v3/auth/tokens HTTP/1.1\r\nContent-Type:\ application/json\r\nContent-Length:\ 140\
+\r\n\r\n{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"name\":\"h34lthch3ck\",\
+\"domain\":{\"id\":\"default\"},\"password\":\"h34lthch3ck\"}}}}}'
+    http-check: "expect status 401"
   # CONSCIENCE
   - name: conscience-backend
     mode: tcp
