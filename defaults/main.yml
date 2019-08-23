@@ -36,6 +36,8 @@ haproxy_global_log_socket: 127.0.0.1
 haproxy_global_log_facility: local5
 haproxy_global_log_level: info
 
+haproxy_global_nbproc: 1
+
 haproxy_global_chroot: /var/lib/haproxy
 
 haproxy_global_user: haproxy
