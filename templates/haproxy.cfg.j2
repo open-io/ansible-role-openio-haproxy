@@ -3,6 +3,8 @@ global
   log {{ haproxy_global_log_socket }}:514 {{ haproxy_global_log_facility }} {{ haproxy_global_log_level }}
   chroot {{ haproxy_global_chroot }}
 
+  nbproc {{ haproxy_global_nbproc }}
+
   user {{ haproxy_global_user }}
   group {{ haproxy_global_group }}
   daemon
