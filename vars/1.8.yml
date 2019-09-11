@@ -4,4 +4,6 @@ haproxy_log_format_https: "\"%ci:%cp [%t] %ft %b/%s h=%Th/i=%Ti/R=%TR/w=%Tw/c=%T
   %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r %ID\""
 haproxy_log_format_http: "\"%ci:%cp [%t] %ft %b/%s h=%Th/w=%Tw/c=%Tc/d=%Td/t=%Tt %B %ts %ac/%fc/%bc/%sc/%rc %sq/%bq\""
 haproxy_log_format_tcp: "\"%ci:%cp [%t] %ft %b/t=%Tt w=%Tw c=%Tc/%B %ts %ac/%fc/%bc/%sc/%rc %sq/%bq\""
+# yamllint disable-line rule:line-length
+haproxy_keystone_check_packet: 'httpchk POST "/v3/auth/tokens HTTP/1.1\r\nContent-Type:\ application/json\r\nContent-Length:\ 140\r\n\r\n{\"auth\":{\"identity\":{\"methods\":[\"password\"],\"password\":{\"user\":{\"name\":\"h34lthch3ck\",\"domain\":{\"id\":\"default\"},\"password\":\"h34lthch3ck\"}}}}}"'
 ...
