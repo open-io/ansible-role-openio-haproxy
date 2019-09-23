@@ -79,6 +79,7 @@ An Ansible role for configure HAproxy for openio SDS. Specifically, the responsi
 | `haproxy_sysctl_template_dest` | `/etc/sysctl.d/49-haproxy.conf` | [LEGACY] sysctl file |
 | `haproxy_virtual_address` | `172.17.0.100` | Virtual IP address |
 | `haproxy_provision_only` | `false` | Provision only without restarting or reloading services |
+| `haproxy_package_upgrade` | `false` | Set the packages to the latest version (to be set in extra_vars) |
 
 
 
@@ -207,17 +208,17 @@ node1 ansible_host=192.168.1.173
 Creating a .pem with the private key and entire trust chain
 
 ```
------BEGIN RSA PRIVATE KEY----- 
-(Your Private Key: mydomain.org.key) 
------END RSA PRIVATE KEY----- 
------BEGIN CERTIFICATE----- 
-(Your Primary SSL certificate: mydomain.org.crt) 
------END CERTIFICATE----- 
------BEGIN CERTIFICATE----- 
-(Your Intermediate certificate: intermediateCA.crt) 
------END CERTIFICATE----- 
------BEGIN CERTIFICATE----- 
-(Your Root certificate: TrustedRoot.crt) 
+-----BEGIN RSA PRIVATE KEY-----
+(Your Private Key: mydomain.org.key)
+-----END RSA PRIVATE KEY-----
+-----BEGIN CERTIFICATE-----
+(Your Primary SSL certificate: mydomain.org.crt)
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+(Your Intermediate certificate: intermediateCA.crt)
+-----END CERTIFICATE-----
+-----BEGIN CERTIFICATE-----
+(Your Root certificate: TrustedRoot.crt)
 -----END CERTIFICATE-----
 -----BEGIN X9.42 DH PARAMETERS-----
 (Your DH paramaters)
@@ -273,4 +274,3 @@ GNU AFFERO GENERAL PUBLIC LICENSE, Version 3
 - [Cedric DELGEHIER](https://github.com/cdelgehier) (maintainer)
 - [Romain ACCIARI](https://github.com/racciari) (maintainer)
 - [Vincent LEGOLL](https://github.com/vincent-legoll) (maintainer)
-
