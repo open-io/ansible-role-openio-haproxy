@@ -21,7 +21,7 @@
 - name: 'HAproxy: Install packages'
   package:
     name: "{{ item }}"
-    state: present
+    state: "{{ 'latest' if haproxy_package_upgrade else 'present' }}"
   with_items: "{{ haproxy_packages }}"
   register: install_packages
   until: install_packages is success
