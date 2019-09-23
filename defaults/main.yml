@@ -29,6 +29,7 @@ haproxy_logrotate_retention: 5
 # provision only to prevent restart/reload of the service
 haproxy_provision_only: false
 
+haproxy_package_upgrade: "{{ openio_package_upgrade | d(false) }}"
 
 ##### HAproxy configuration file
 # Global
