@@ -1,3 +1,5 @@
+from six import string_types
+
 class FilterModule(object):
     def filters(self):
         return {
@@ -7,7 +9,7 @@ class FilterModule(object):
     def list_backends(self, list_backends, name, active=0, check="0"):
         backends = list()
 
-        if isinstance(list_backends, basestring):
+        if isinstance(list_backends, string_types):
             list_backends = list_backends.split()
 
         for index, backend in enumerate(list_backends):
