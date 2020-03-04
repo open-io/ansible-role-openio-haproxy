@@ -24,7 +24,8 @@ haproxy_rsyslog_conf_path: /etc/rsyslog.d/49-haproxy.conf
 haproxy_logrotate_managed: true
 haproxy_logrotate_conf_template: logrotate_haproxy.conf.j2
 haproxy_logrotate_template_conf_path: /etc/logrotate.d/haproxy
-haproxy_logrotate_retention: 5
+haproxy_logrotate_retention: "{{ openio_log_retention | default(14) | int }}"
+haproxy_logrotate_maxsize: "{{ openio_log_max_size | default('50M') }}"
 
 # provision only to prevent restart/reload of the service
 haproxy_provision_only: false
