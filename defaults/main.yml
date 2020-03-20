@@ -28,7 +28,7 @@ haproxy_logrotate_retention: "{{ openio_log_retention | default(14) | int }}"
 haproxy_logrotate_maxsize: "{{ openio_log_max_size | default('50M') }}"
 
 # provision only to prevent restart/reload of the service
-haproxy_provision_only: false
+haproxy_provision_only: "{{ openio_maintenance_mode | default(false) | bool }}"
 
 haproxy_package_upgrade: "{{ openio_package_upgrade | d(false) }}"
 
