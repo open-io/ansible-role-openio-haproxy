@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/open-io/ansible-role-openio-haproxy.svg?branch=master)](https://travis-ci.org/open-io/ansible-role-openio-haproxy)
+[![Build Status](https://travis-ci.org/open-io/ansible-role-openio-haproxy.svg?branch=20.04)](https://travis-ci.org/open-io/ansible-role-openio-haproxy)
 # Ansible role `haproxy`
 
 An Ansible role for configure HAproxy for openio SDS. Specifically, the responsibilities of this role are to:
